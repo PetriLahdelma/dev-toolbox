@@ -48,9 +48,19 @@ fi
 
 cd "$repo_path"
 
-declare -a fails
-declare -a warns
-declare -a passes
+declare -a fails=()
+declare -a warns=()
+declare -a passes=()
+
+contains_text() {
+  local pattern="$1"
+  local file_path="$2"
+  if command -v rg >/dev/null 2>&1; then
+    rg -q "$pattern" "$file_path"
+  else
+    grep -q "$pattern" "$file_path"
+  fi
+}
 
 required_files=(
   ".github/CODEOWNERS"
@@ -97,13 +107,13 @@ else
 fi
 
 if [[ -f ".github/workflows/release.yml" ]]; then
-  if rg -q "release-please-action" .github/workflows/release.yml; then
+  if contains_text "release-please-action" .github/workflows/release.yml; then
     passes+=("release workflow uses release-please")
   else
     warns+=("release workflow does not use release-please")
   fi
 
-  if rg -q "RELEASE_PLEASE_TOKEN" .github/workflows/release.yml; then
+  if contains_text "RELEASE_PLEASE_TOKEN" .github/workflows/release.yml; then
     passes+=("release token fallback configured")
   else
     warns+=("release workflow missing RELEASE_PLEASE_TOKEN fallback")
