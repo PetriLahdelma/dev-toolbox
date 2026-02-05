@@ -1,6 +1,6 @@
 {
   "name": "next-app",
-  "description": "Next.js App Router profile with CI for lint/typecheck/test/build.",
+  "description": "Next.js App Router profile with Tailwind, shadcn-style UI, Radix, and Vercel-ready defaults.",
   "template": "next-app",
   "release_type": "node",
   "setup_node": true,

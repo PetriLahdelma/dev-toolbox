@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/dev-toolbox.svg" alt="dev-toolbox logo" width="860" />
+  <img src="./assets/dev-toolbox.svg" alt="dev-toolbox logo" width="287" />
 </p>
 
 # dev-toolbox
@@ -26,6 +26,7 @@ A practical toolkit for running repositories like real products.
 - `profiles/`: reusable presets for `node-cli`, `next-app`, and `github-action`.
 - `templates/baseline/`: CODEOWNERS, issue/PR templates, Dependabot, release workflows, and maintainer docs.
 - `templates/projects/`: starter code for each profile.
+- `templates/features/`: optional profile feature packs (e.g., motion, remotion, AI agent, Claude context).
 
 ## Quickstart
 
@@ -56,6 +57,9 @@ A practical toolkit for running repositories like real products.
 
 # Next.js app
 ./scripts/scaffold my-app next-app . --owner @PetriLahdelma
+
+# Next.js app + all optional extras
+./scripts/scaffold my-app-pro next-app . --owner @PetriLahdelma --all-next-extras
 
 # Composite GitHub Action
 ./scripts/scaffold my-action github-action . --owner @PetriLahdelma
@@ -106,8 +110,16 @@ A practical toolkit for running repositories like real products.
 ## Profiles
 
 - `node-cli`: Node package conventions, full test gate, release type `node`.
-- `next-app`: Next.js baseline with lint/typecheck/test/build gates.
+- `next-app`: Next.js + Tailwind + shadcn-style UI + Radix + Vercel baseline.
 - `github-action`: Composite action baseline with shell-focused CI.
+
+`next-app` optional flags:
+
+- `--motion`
+- `--remotion`
+- `--vercel-agents` (alias: `--vercel-agent-brovers`)
+- `--claude` / `--claude-code`
+- `--all-next-extras`
 
 See `/docs/profiles.md` for details.
 

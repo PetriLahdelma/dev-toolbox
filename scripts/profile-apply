@@ -146,7 +146,7 @@ release_file="$repo_abs/.github/workflows/release.yml"
   echo "    steps:"
   echo "      - uses: googleapis/release-please-action@v4"
   echo "        with:"
-  echo '          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}'
+  echo "          token: \${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}"
   echo "          release-type: $release_type"
 } > "$release_file"
 

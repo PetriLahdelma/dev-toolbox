@@ -3,24 +3,37 @@ set -euo pipefail
 
 usage() {
   cat <<'EOT'
-Usage: scripts/scaffold <repo-name> <profile> [target-parent] [--owner @handle] [--no-install] [--force]
+Usage: scripts/scaffold <repo-name> <profile> [target-parent] [--owner @handle] [--no-install] [--force] [feature flags]
 
 Examples:
   scripts/scaffold my-cli node-cli
   scripts/scaffold my-next next-app /tmp --owner @PetriLahdelma
   scripts/scaffold my-action github-action --no-install
+  scripts/scaffold my-next next-app . --motion --remotion --vercel-agents --claude
 
 Behavior:
   - Creates project from profile template
   - Applies baseline maintainer stack and workflows
   - Initializes git repo on main branch
   - Runs npm install for Node-based templates unless --no-install is set
+
+Next app feature flags:
+  --motion                  Add Framer Motion starter route/components
+  --remotion                Add Remotion composition starter + scripts
+  --vercel-agents           Add Vercel AI SDK agent route + demo page
+  --vercel-agent-brovers    Alias for --vercel-agents
+  --claude, --claude-code   Add CLAUDE.md scaffolding
+  --all-next-extras         Enable all Next app feature flags
 EOT
 }
 
 owner="@PetriLahdelma"
 install_deps=1
 force=0
+next_motion=0
+next_remotion=0
+next_vercel_agents=0
+next_claude=0
 
 positional=()
 while [[ $# -gt 0 ]]; do
@@ -43,6 +56,29 @@ while [[ $# -gt 0 ]]; do
       ;;
     --force)
       force=1
+      shift
+      ;;
+    --motion)
+      next_motion=1
+      shift
+      ;;
+    --remotion)
+      next_remotion=1
+      shift
+      ;;
+    --vercel-agents|--vercel-agent-brovers)
+      next_vercel_agents=1
+      shift
+      ;;
+    --claude|--claude-code)
+      next_claude=1
+      shift
+      ;;
+    --all-next-extras)
+      next_motion=1
+      next_remotion=1
+      next_vercel_agents=1
+      next_claude=1
       shift
       ;;
     *)
@@ -76,6 +112,13 @@ if [[ -e "$target" && "$force" -ne 1 ]]; then
   exit 1
 fi
 
+if [[ "$profile" != "next-app" ]]; then
+  if [[ "$next_motion" -eq 1 || "$next_remotion" -eq 1 || "$next_vercel_agents" -eq 1 || "$next_claude" -eq 1 ]]; then
+    echo "Next app feature flags are only supported with profile 'next-app'."
+    exit 1
+  fi
+fi
+
 mkdir -p "$target"
 
 escape_sed() {
@@ -84,20 +127,101 @@ escape_sed() {
 
 repo_esc="$(escape_sed "$repo_name")"
 
-while IFS= read -r -d '' src; do
-  rel="${src#"$project_template"/}"
-  dest="$target/$rel"
-  mkdir -p "$(dirname "$dest")"
-  sed -e "s/__REPO_NAME__/$repo_esc/g" "$src" > "$dest"
+copy_template_tree() {
+  local source_dir="$1"
+  while IFS= read -r -d '' src; do
+    rel="${src#"$source_dir"/}"
+    dest="$target/$rel"
+    mkdir -p "$(dirname "$dest")"
+    sed -e "s/__REPO_NAME__/$repo_esc/g" "$src" > "$dest"
 
-  case "$rel" in
-    *.sh|scripts/*)
-      chmod +x "$dest"
-      ;;
-  esac
+    case "$rel" in
+      *.sh|scripts/*)
+        chmod +x "$dest"
+        ;;
+    esac
 
-  echo "write: $dest"
-done < <(find "$project_template" -type f -print0)
+    echo "write: $dest"
+  done < <(find "$source_dir" -type f -print0)
+}
+
+require_jq() {
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "jq is required to apply feature flags."
+    exit 1
+  fi
+}
+
+json_set() {
+  local tmp
+  tmp="$(mktemp)"
+  jq "$@" "$target/package.json" > "$tmp"
+  mv "$tmp" "$target/package.json"
+}
+
+json_add_dep() {
+  local section="$1"
+  local package_name="$2"
+  local package_version="$3"
+  # shellcheck disable=SC2016
+  json_set --arg section "$section" --arg package_name "$package_name" --arg package_version "$package_version" \
+    '.[$section] = (.[$section] // {}) | .[$section][$package_name] = $package_version'
+}
+
+json_add_script() {
+  local script_name="$1"
+  local script_cmd="$2"
+  # shellcheck disable=SC2016
+  json_set --arg script_name "$script_name" --arg script_cmd "$script_cmd" \
+    '.scripts = (.scripts // {}) | .scripts[$script_name] = $script_cmd'
+}
+
+apply_feature_template() {
+  local feature_name="$1"
+  local feature_dir="$root_dir/templates/features/next-app/$feature_name"
+  if [[ ! -d "$feature_dir" ]]; then
+    echo "Feature template missing: $feature_name"
+    exit 1
+  fi
+  copy_template_tree "$feature_dir"
+}
+
+copy_template_tree "$project_template"
+
+if [[ "$profile" == "next-app" ]]; then
+  if [[ "$next_motion" -eq 1 || "$next_remotion" -eq 1 || "$next_vercel_agents" -eq 1 ]]; then
+    require_jq
+  fi
+
+  if [[ "$next_motion" -eq 1 ]]; then
+    apply_feature_template "motion"
+    json_add_dep "dependencies" "framer-motion" "^12.33.0"
+    echo "feature enabled: motion"
+  fi
+
+  if [[ "$next_remotion" -eq 1 ]]; then
+    apply_feature_template "remotion"
+    json_add_dep "dependencies" "remotion" "^4.0.419"
+    json_add_dep "dependencies" "@remotion/player" "^4.0.419"
+    json_add_dep "devDependencies" "@remotion/cli" "^4.0.419"
+    json_add_script "video:dev" "remotion studio video/index.ts"
+    json_add_script "video:render" "remotion render video/index.ts Root out/video.mp4"
+    echo "feature enabled: remotion"
+  fi
+
+  if [[ "$next_vercel_agents" -eq 1 ]]; then
+    apply_feature_template "vercel-agents"
+    json_add_dep "dependencies" "ai" "^6.0.72"
+    json_add_dep "dependencies" "@ai-sdk/openai" "^3.0.25"
+    json_add_dep "dependencies" "@ai-sdk/react" "^3.0.74"
+    echo "feature enabled: vercel-agents"
+  fi
+
+  if [[ "$next_claude" -eq 1 ]]; then
+    apply_feature_template "claude"
+    echo "feature enabled: claude"
+  fi
+fi
 
 "$root_dir/scripts/profile-apply" "$profile" "$target" --owner "$owner" --force
 

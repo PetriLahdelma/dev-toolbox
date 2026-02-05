@@ -48,7 +48,7 @@ if git rev-parse --verify HEAD >/dev/null 2>&1; then
   else
     range="HEAD"
   fi
-  commits_text="$(git log --pretty=format:%s $range 2>/dev/null || true)"
+  commits_text="$(git log --pretty=format:%s "$range" 2>/dev/null || true)"
 else
   commits_text=""
 fi
@@ -156,13 +156,15 @@ done < CHANGELOG.md
 updated="$(mktemp)"
 inserted=0
 while IFS= read -r line || [[ -n "$line" ]]; do
-  echo "$line" >> "$updated"
-  if [[ "$inserted" -eq 0 && "$line" =~ ^##\ \[Unreleased\] ]]; then
-    echo >> "$updated"
-    cat "$block_file" >> "$updated"
-    echo >> "$updated"
-    inserted=1
-  fi
+  {
+    echo "$line"
+    if [[ "$inserted" -eq 0 && "$line" =~ ^##\ \[Unreleased\] ]]; then
+      echo
+      cat "$block_file"
+      echo
+      inserted=1
+    fi
+  } >> "$updated"
 done < "$stripped"
 
 if [[ "$inserted" -eq 0 ]]; then

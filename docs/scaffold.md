@@ -11,6 +11,9 @@ Use scaffolding to bootstrap a new repository with profile defaults and maintain
 # Next.js app in /tmp without installing deps
 ./scripts/scaffold my-next next-app /tmp --no-install --owner @PetriLahdelma
 
+# Next.js app with feature packs
+./scripts/scaffold my-next-pro next-app . --owner @PetriLahdelma --motion --remotion --vercel-agents --claude
+
 # Composite GitHub Action project
 ./scripts/scaffold my-action github-action . --owner @PetriLahdelma
 ```
@@ -22,6 +25,14 @@ Use scaffolding to bootstrap a new repository with profile defaults and maintain
 3. Initializes git on `main`.
 4. Installs npm dependencies (unless `--no-install`).
 5. Prints follow-up commands.
+
+## Next app feature flags
+
+- `--motion`: Adds Framer Motion starter components and route.
+- `--remotion`: Adds Remotion composition starter and video scripts.
+- `--vercel-agents`: Adds Vercel AI SDK route + chat demo page.
+- `--claude` or `--claude-code`: Adds `CLAUDE.md` starter guidance.
+- `--all-next-extras`: Enables all Next app feature flags at once.
 
 ## Validation recommendation
 

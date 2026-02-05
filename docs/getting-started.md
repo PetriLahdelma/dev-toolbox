@@ -26,6 +26,12 @@ cd dev-toolbox
 ./scripts/scaffold my-cli node-cli . --owner @PetriLahdelma
 ```
 
+Or scaffold the full Next.js stack:
+
+```bash
+./scripts/scaffold my-next next-app . --owner @PetriLahdelma --all-next-extras
+```
+
 ## 5) Validate scaffold output
 
 ```bash

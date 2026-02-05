@@ -31,12 +31,18 @@ echo "== benchmark smoke =="
 echo "== scaffold matrix =="
 tmpdir="$(mktemp -d)"
 ./scripts/scaffold ci-node-cli node-cli "$tmpdir" --no-install --force
-./scripts/scaffold ci-next next-app "$tmpdir" --no-install --force
+./scripts/scaffold ci-next next-app "$tmpdir" --no-install --force --all-next-extras
 ./scripts/scaffold ci-action github-action "$tmpdir" --no-install --force
 
 ./scripts/doctor-ci "$tmpdir/ci-node-cli" --strict
 ./scripts/doctor-ci "$tmpdir/ci-next" --strict
 ./scripts/doctor-ci "$tmpdir/ci-action" --strict
+
+[[ -f "$tmpdir/ci-next/components/ui/button.tsx" ]]
+[[ -f "$tmpdir/ci-next/components/motion/fade-up.tsx" ]]
+[[ -f "$tmpdir/ci-next/video/index.ts" ]]
+[[ -f "$tmpdir/ci-next/app/api/agent/route.ts" ]]
+[[ -f "$tmpdir/ci-next/CLAUDE.md" ]]
 
 ./scripts/profile-apply node-cli "$tmpdir/ci-node-cli" --owner @PetriLahdelma --force
 ./scripts/profile-apply next-app "$tmpdir/ci-next" --owner @PetriLahdelma --force

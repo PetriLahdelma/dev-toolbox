@@ -27,3 +27,4 @@ Profiles define reusable CI/release presets and expected script contracts.
 - Profiles generate `ci.yml` and `release.yml`.
 - Dependabot config is profile-aware (Node profiles include npm updates).
 - Existing files are preserved unless `--force` is used.
+- `next-app` includes Next.js App Router + Tailwind + shadcn-style UI + Radix + Vercel defaults.
