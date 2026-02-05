@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+required=(git node npm)
+optional=(just mise docker gh)
+
+printf "== Required tools ==\n"
+for cmd in "${required[@]}"; do
+  if command -v "$cmd" >/dev/null 2>&1; then
+    printf "[ok] %s: %s\n" "$cmd" "$($cmd --version 2>/dev/null | head -n1)"
+  else
+    printf "[missing] %s\n" "$cmd"
+    missing=1
+  fi
+done
+
+printf "\n== Optional tools ==\n"
+for cmd in "${optional[@]}"; do
+  if command -v "$cmd" >/dev/null 2>&1; then
+    printf "[ok] %s\n" "$cmd"
+  else
+    printf "[skip] %s not installed\n" "$cmd"
+  fi
+done
+
+if [[ "${missing:-0}" -eq 1 ]]; then
+  printf "\nOne or more required tools are missing.\n" >&2
+  exit 1
+fi
+
+printf "\nEnvironment check passed.\n"

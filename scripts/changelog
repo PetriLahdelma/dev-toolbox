@@ -1,0 +1,186 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOT'
+Usage: scripts/changelog [repo-path] [--apply]
+
+Examples:
+  scripts/changelog
+  scripts/changelog ../my-repo --apply
+
+Behavior:
+  - Reads commit messages since latest tag (or all commits if no tag)
+  - Produces categorized changelog entries
+  - Prints to stdout by default
+  - Writes/updates CHANGELOG.md under [Unreleased] with --apply
+EOT
+}
+
+repo_path="."
+apply=0
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+if [[ "${1:-}" != "" && "${1:-}" != "--apply" ]]; then
+  repo_path="$1"
+  shift || true
+fi
+
+if [[ "${1:-}" == "--apply" ]]; then
+  apply=1
+fi
+
+cd "$repo_path"
+
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "Not inside a git repository: $repo_path"
+  exit 1
+fi
+
+latest_tag="$(git describe --tags --abbrev=0 2>/dev/null || true)"
+if git rev-parse --verify HEAD >/dev/null 2>&1; then
+  if [[ -n "$latest_tag" ]]; then
+    range="$latest_tag..HEAD"
+  else
+    range="HEAD"
+  fi
+  commits_text="$(git log --pretty=format:%s $range 2>/dev/null || true)"
+else
+  commits_text=""
+fi
+
+filter_commits() {
+  local pattern="$1"
+  [[ -z "$commits_text" ]] && return 0
+  printf '%s\n' "$commits_text" | rg -N "$pattern" || true
+}
+
+clean_prefix() {
+  sed -E 's/^(feat|fix|docs|refactor|perf|test|build|ci|chore|revert)(\([^)]*\))?(!)?:[[:space:]]*//'
+}
+
+added="$(filter_commits '^feat(\(|:|!)' | clean_prefix)"
+fixed="$(filter_commits '^fix(\(|:|!)' | clean_prefix)"
+docs="$(filter_commits '^docs(\(|:|!)' | clean_prefix)"
+maint="$(filter_commits '^(chore|refactor|perf|test|build|ci|revert)(\(|:|!)' | clean_prefix)"
+if [[ -n "$commits_text" ]]; then
+  other="$(printf '%s\n' "$commits_text" | rg -N -v '^(feat|fix|docs|refactor|perf|test|build|ci|chore|revert)(\(|:|!)' || true)"
+else
+  other=""
+fi
+
+block_file="$(mktemp)"
+{
+  echo "<!-- TOOLBOX_CHANGELOG_START -->"
+  echo "### Added"
+  if [[ -n "$added" ]]; then
+    while IFS= read -r line; do
+      [[ -n "$line" ]] && echo "- $line"
+    done <<< "$added"
+  else
+    echo "- No new feature commits since ${latest_tag:-repo start}."
+  fi
+  echo
+  echo "### Fixed"
+  if [[ -n "$fixed" ]]; then
+    while IFS= read -r line; do
+      [[ -n "$line" ]] && echo "- $line"
+    done <<< "$fixed"
+  else
+    echo "- No fix commits since ${latest_tag:-repo start}."
+  fi
+  echo
+  echo "### Docs"
+  if [[ -n "$docs" ]]; then
+    while IFS= read -r line; do
+      [[ -n "$line" ]] && echo "- $line"
+    done <<< "$docs"
+  else
+    echo "- No documentation commits since ${latest_tag:-repo start}."
+  fi
+  echo
+  echo "### Maintenance"
+  if [[ -n "$maint" ]]; then
+    while IFS= read -r line; do
+      [[ -n "$line" ]] && echo "- $line"
+    done <<< "$maint"
+  else
+    echo "- No maintenance commits since ${latest_tag:-repo start}."
+  fi
+  if [[ -n "$other" ]]; then
+    echo
+    echo "### Other"
+    while IFS= read -r line; do
+      [[ -n "$line" ]] && echo "- $line"
+    done <<< "$other"
+  fi
+  echo "<!-- TOOLBOX_CHANGELOG_END -->"
+} > "$block_file"
+
+if [[ "$apply" -ne 1 ]]; then
+  cat "$block_file"
+  rm -f "$block_file"
+  exit 0
+fi
+
+if [[ ! -f CHANGELOG.md ]]; then
+  cat > CHANGELOG.md <<'EOC'
+# Changelog
+
+All notable changes to this project are documented in this file.
+
+## [Unreleased]
+
+EOC
+fi
+
+stripped="$(mktemp)"
+skip=0
+while IFS= read -r line || [[ -n "$line" ]]; do
+  if [[ "$line" == "<!-- TOOLBOX_CHANGELOG_START -->" ]]; then
+    skip=1
+    continue
+  fi
+  if [[ "$line" == "<!-- TOOLBOX_CHANGELOG_END -->" ]]; then
+    skip=0
+    continue
+  fi
+  [[ "$skip" -eq 1 ]] && continue
+  echo "$line" >> "$stripped"
+done < CHANGELOG.md
+
+updated="$(mktemp)"
+inserted=0
+while IFS= read -r line || [[ -n "$line" ]]; do
+  echo "$line" >> "$updated"
+  if [[ "$inserted" -eq 0 && "$line" =~ ^##\ \[Unreleased\] ]]; then
+    echo >> "$updated"
+    cat "$block_file" >> "$updated"
+    echo >> "$updated"
+    inserted=1
+  fi
+done < "$stripped"
+
+if [[ "$inserted" -eq 0 ]]; then
+  {
+    echo "# Changelog"
+    echo
+    echo "All notable changes to this project are documented in this file."
+    echo
+    echo "## [Unreleased]"
+    echo
+    cat "$block_file"
+    echo
+    cat "$updated"
+  } > "$updated.new"
+  mv "$updated.new" "$updated"
+fi
+
+mv "$updated" CHANGELOG.md
+rm -f "$block_file" "$stripped"
+
+echo "Updated CHANGELOG.md"

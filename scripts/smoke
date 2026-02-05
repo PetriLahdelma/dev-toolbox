@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_path="${1:-.}"
+cd "$repo_path"
+
+if [[ ! -f package.json ]]; then
+  echo "No package.json found in $repo_path"
+  exit 1
+fi
+
+if ! command -v jq >/dev/null 2>&1; then
+  echo "jq is required for script discovery"
+  exit 1
+fi
+
+run_script_if_exists() {
+  local script="$1"
+  if jq -e --arg s "$script" '.scripts[$s] != null' package.json >/dev/null; then
+    echo "-> npm run $script"
+    npm run "$script"
+  else
+    echo "-> skip $script (not defined)"
+  fi
+}
+
+run_script_if_exists lint
+run_script_if_exists typecheck
+run_script_if_exists test
+run_script_if_exists build
+
+echo "Smoke checks complete."

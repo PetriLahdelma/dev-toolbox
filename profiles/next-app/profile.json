@@ -1,0 +1,15 @@
+{
+  "name": "next-app",
+  "description": "Next.js App Router profile with CI for lint/typecheck/test/build.",
+  "template": "next-app",
+  "release_type": "node",
+  "setup_node": true,
+  "ci_commands": [
+    "npm ci",
+    "npm run lint",
+    "npm run typecheck",
+    "npm test",
+    "npm run build"
+  ],
+  "required_scripts": ["lint", "typecheck", "test", "build"]
+}

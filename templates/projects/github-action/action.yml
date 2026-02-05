@@ -1,0 +1,12 @@
+name: "__REPO_NAME__"
+description: "Composite action scaffold"
+inputs:
+  message:
+    description: "Message to print"
+    required: false
+    default: "hello"
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: ./scripts/main.sh "${{ inputs.message }}"

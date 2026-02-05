@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+strict=0
+if [[ "${1:-}" == "--strict" ]]; then
+  strict=1
+fi
+
+if ! command -v shellcheck >/dev/null 2>&1; then
+  if [[ "$strict" -eq 1 ]]; then
+    echo "shellcheck is required in strict mode"
+    exit 1
+  fi
+  echo "shellcheck not installed; skipping"
+  exit 0
+fi
+
+targets=(scripts/* templates/projects/github-action/scripts/*)
+
+for f in "${targets[@]}"; do
+  if [[ -f "$f" ]]; then
+    shellcheck "$f"
+  fi
+done
+
+echo "shell lint checks passed"

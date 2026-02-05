@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root_dir="$(cd "$(dirname "$0")/.." && pwd)"
+keep_tmp=0
+
+if [[ "${1:-}" == "--keep-tmp" ]]; then
+  keep_tmp=1
+fi
+
+cd "$root_dir"
+
+echo "== syntax checks =="
+for f in scripts/* templates/projects/github-action/scripts/*; do
+  bash -n "$f"
+done
+
+echo "== shellcheck =="
+if [[ "${CI:-}" == "true" ]]; then
+  ./scripts/lint-shell --strict
+else
+  ./scripts/lint-shell
+fi
+
+echo "== baseline checks =="
+./scripts/doctor-ci . --strict --report .toolbox/doctor-ci.md
+
+echo "== benchmark smoke =="
+./scripts/bench "bash -lc 'echo benchmark >/dev/null'" 3 .toolbox/bench
+
+echo "== scaffold matrix =="
+tmpdir="$(mktemp -d)"
+./scripts/scaffold ci-node-cli node-cli "$tmpdir" --no-install --force
+./scripts/scaffold ci-next next-app "$tmpdir" --no-install --force
+./scripts/scaffold ci-action github-action "$tmpdir" --no-install --force
+
+./scripts/doctor-ci "$tmpdir/ci-node-cli" --strict
+./scripts/doctor-ci "$tmpdir/ci-next" --strict
+./scripts/doctor-ci "$tmpdir/ci-action" --strict
+
+./scripts/profile-apply node-cli "$tmpdir/ci-node-cli" --owner @PetriLahdelma --force
+./scripts/profile-apply next-app "$tmpdir/ci-next" --owner @PetriLahdelma --force
+./scripts/profile-apply github-action "$tmpdir/ci-action" --owner @PetriLahdelma --force
+
+echo "self-test passed"
+
+if [[ "$keep_tmp" -eq 1 ]]; then
+  echo "tmpdir retained: $tmpdir"
+else
+  rm -rf "$tmpdir"
+fi

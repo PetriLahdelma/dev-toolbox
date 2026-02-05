@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOT'
+Usage: scripts/scaffold <repo-name> <profile> [target-parent] [--owner @handle] [--no-install] [--force]
+
+Examples:
+  scripts/scaffold my-cli node-cli
+  scripts/scaffold my-next next-app /tmp --owner @PetriLahdelma
+  scripts/scaffold my-action github-action --no-install
+
+Behavior:
+  - Creates project from profile template
+  - Applies baseline maintainer stack and workflows
+  - Initializes git repo on main branch
+  - Runs npm install for Node-based templates unless --no-install is set
+EOT
+}
+
+owner="@PetriLahdelma"
+install_deps=1
+force=0
+
+positional=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --owner)
+      owner="${2:-}"
+      if [[ -z "$owner" ]]; then
+        echo "--owner requires a value"
+        exit 1
+      fi
+      shift 2
+      ;;
+    --no-install)
+      install_deps=0
+      shift
+      ;;
+    --force)
+      force=1
+      shift
+      ;;
+    *)
+      positional+=("$1")
+      shift
+      ;;
+  esac
+done
+
+if [[ ${#positional[@]} -lt 2 ]]; then
+  usage
+  exit 1
+fi
+
+repo_name="${positional[0]}"
+profile="${positional[1]}"
+parent_dir="${positional[2]:-.}"
+
+root_dir="$(cd "$(dirname "$0")/.." && pwd)"
+project_template="$root_dir/templates/projects/$profile"
+
+if [[ ! -d "$project_template" ]]; then
+  echo "Unknown profile/template: $profile"
+  exit 1
+fi
+
+target="$parent_dir/$repo_name"
+if [[ -e "$target" && "$force" -ne 1 ]]; then
+  echo "Target already exists: $target"
+  echo "Use --force to allow existing directory."
+  exit 1
+fi
+
+mkdir -p "$target"
+
+escape_sed() {
+  printf '%s' "$1" | sed -e 's/[\/&]/\\&/g'
+}
+
+repo_esc="$(escape_sed "$repo_name")"
+
+while IFS= read -r -d '' src; do
+  rel="${src#"$project_template"/}"
+  dest="$target/$rel"
+  mkdir -p "$(dirname "$dest")"
+  sed -e "s/__REPO_NAME__/$repo_esc/g" "$src" > "$dest"
+
+  case "$rel" in
+    *.sh|scripts/*)
+      chmod +x "$dest"
+      ;;
+  esac
+
+  echo "write: $dest"
+done < <(find "$project_template" -type f -print0)
+
+"$root_dir/scripts/profile-apply" "$profile" "$target" --owner "$owner" --force
+
+if [[ ! -d "$target/.git" ]]; then
+  git -C "$target" init -q
+  git -C "$target" branch -m main
+fi
+
+if [[ "$install_deps" -eq 1 && -f "$target/package.json" ]]; then
+  if command -v npm >/dev/null 2>&1; then
+    echo "Installing npm dependencies for scaffolded project..."
+    npm --prefix "$target" install
+  else
+    echo "warn: npm not available; skipping install"
+  fi
+fi
+
+echo "Scaffold complete: $target"
+echo "Next:"
+echo "  cd $target"
+echo "  git add . && git commit -m \"chore: scaffold $profile project\""

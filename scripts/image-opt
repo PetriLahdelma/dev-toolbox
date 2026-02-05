@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+path="${1:-}"
+if [[ -z "$path" || ! -e "$path" ]]; then
+  echo "Usage: scripts/image-opt <file-or-directory>"
+  exit 1
+fi
+
+opt_png() {
+  local file="$1"
+  if command -v oxipng >/dev/null 2>&1; then
+    oxipng -o 3 --strip safe "$file" >/dev/null
+  elif command -v pngquant >/dev/null 2>&1; then
+    pngquant --force --ext .png --skip-if-larger "$file" >/dev/null
+  fi
+}
+
+opt_jpg() {
+  local file="$1"
+  if command -v jpegoptim >/dev/null 2>&1; then
+    jpegoptim --strip-all "$file" >/dev/null
+  fi
+}
+
+opt_svg() {
+  local file="$1"
+  if command -v svgo >/dev/null 2>&1; then
+    svgo "$file" >/dev/null
+  fi
+}
+
+while IFS= read -r file; do
+  case "$file" in
+    *.png) opt_png "$file"; echo "optimized $file" ;;
+    *.jpg|*.jpeg) opt_jpg "$file"; echo "optimized $file" ;;
+    *.svg) opt_svg "$file"; echo "optimized $file" ;;
+  esac
+done < <(find "$path" -type f \( -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.svg' \))
+
+echo "Image optimization pass finished."

@@ -1,0 +1,198 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOT'
+Usage: scripts/doctor-ci [repo-path] [--report <path>] [--strict]
+
+Examples:
+  scripts/doctor-ci
+  scripts/doctor-ci ../some-repo --report .toolbox/doctor-ci.md
+
+Checks:
+  - baseline maintainer files/workflows
+  - CI workflow presence
+  - release workflow conventions
+  - package script hygiene (for Node repos)
+EOT
+}
+
+repo_path="."
+report_path=""
+strict=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --report)
+      report_path="${2:-}"
+      shift 2
+      ;;
+    --strict)
+      strict=1
+      shift
+      ;;
+    *)
+      repo_path="$1"
+      shift
+      ;;
+  esac
+done
+
+if [[ -n "$report_path" ]]; then
+  mkdir -p "$(dirname "$report_path")"
+fi
+
+cd "$repo_path"
+
+declare -a fails
+declare -a warns
+declare -a passes
+
+required_files=(
+  ".github/CODEOWNERS"
+  ".github/PULL_REQUEST_TEMPLATE.md"
+  ".github/dependabot.yml"
+  ".github/workflows/release.yml"
+  ".github/workflows/semantic-pr-title.yml"
+  ".github/ISSUE_TEMPLATE/bug_report.yml"
+  ".github/ISSUE_TEMPLATE/feature_request.yml"
+  "CONTRIBUTING.md"
+  "SECURITY.md"
+  "CHANGELOG.md"
+  "LICENSE"
+  "CODE_OF_CONDUCT.md"
+  "mise.toml"
+)
+
+for f in "${required_files[@]}"; do
+  if [[ -f "$f" ]]; then
+    passes+=("$f")
+  else
+    fails+=("missing file: $f")
+  fi
+done
+
+if [[ -f ".github/workflows/ci.yml" || -f ".github/workflows/ci-deploy.yml" ]]; then
+  passes+=("ci workflow")
+else
+  fails+=("missing CI workflow (ci.yml or ci-deploy.yml)")
+fi
+
+for style_file in ".editorconfig" ".gitattributes"; do
+  if [[ -f "$style_file" ]]; then
+    passes+=("style file: $style_file")
+  else
+    warns+=("recommended style file missing: $style_file")
+  fi
+done
+
+if [[ -f ".gitignore" ]]; then
+  passes+=("project hygiene file: .gitignore")
+else
+  warns+=("recommended project hygiene file missing: .gitignore")
+fi
+
+if [[ -f ".github/workflows/release.yml" ]]; then
+  if rg -q "release-please-action" .github/workflows/release.yml; then
+    passes+=("release workflow uses release-please")
+  else
+    warns+=("release workflow does not use release-please")
+  fi
+
+  if rg -q "RELEASE_PLEASE_TOKEN" .github/workflows/release.yml; then
+    passes+=("release token fallback configured")
+  else
+    warns+=("release workflow missing RELEASE_PLEASE_TOKEN fallback")
+  fi
+fi
+
+if [[ -f package.json ]]; then
+  if ! command -v jq >/dev/null 2>&1; then
+    fails+=("jq required to inspect package.json")
+  else
+    for s in lint test build; do
+      if jq -e --arg s "$s" '.scripts[$s] != null' package.json >/dev/null; then
+        passes+=("package script: $s")
+      else
+        warns+=("package script missing: $s")
+      fi
+    done
+
+    if jq -e '.scripts["typecheck"] != null' package.json >/dev/null; then
+      passes+=("package script: typecheck")
+    else
+      warns+=("package script missing: typecheck")
+    fi
+  fi
+fi
+
+pass_count="${#passes[@]}"
+warn_count="${#warns[@]}"
+fail_count="${#fails[@]}"
+
+summary="Doctor CI summary: ${pass_count} pass, ${warn_count} warn, ${fail_count} fail"
+echo "$summary"
+
+if [[ "$pass_count" -gt 0 ]]; then
+  for p in "${passes[@]}"; do
+    echo "[ok] $p"
+  done
+fi
+if [[ "$warn_count" -gt 0 ]]; then
+  for w in "${warns[@]}"; do
+    echo "[warn] $w"
+  done
+fi
+if [[ "$fail_count" -gt 0 ]]; then
+  for f in "${fails[@]}"; do
+    echo "[fail] $f"
+  done
+fi
+
+if [[ -n "$report_path" ]]; then
+  {
+    echo "# Doctor CI Report"
+    echo
+    echo "- repository: $(basename "$(pwd)")"
+    echo "- summary: $summary"
+    echo
+    echo "## Pass"
+    if [[ "$pass_count" -eq 0 ]]; then
+      echo "- (none)"
+    else
+      for p in "${passes[@]}"; do
+        echo "- $p"
+      done
+    fi
+    echo
+    echo "## Warn"
+    if [[ "$warn_count" -eq 0 ]]; then
+      echo "- (none)"
+    else
+      for w in "${warns[@]}"; do
+        echo "- $w"
+      done
+    fi
+    echo
+    echo "## Fail"
+    if [[ "$fail_count" -eq 0 ]]; then
+      echo "- (none)"
+    else
+      for f in "${fails[@]}"; do
+        echo "- $f"
+      done
+    fi
+  } > "$report_path"
+fi
+
+if [[ "$fail_count" -gt 0 ]]; then
+  exit 1
+fi
+
+if [[ "$strict" -eq 1 && "$warn_count" -gt 0 ]]; then
+  exit 1
+fi

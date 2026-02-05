@@ -1,0 +1,36 @@
+{
+  "name": "__REPO_NAME__",
+  "version": "0.1.0",
+  "description": "Production-ready Node CLI scaffold",
+  "type": "module",
+  "bin": {
+    "__REPO_NAME__": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "lint": "node --check src/index.js",
+    "typecheck": "node --check src/index.js",
+    "test": "node --test test/*.test.js",
+    "build": "npm run clean && mkdir -p dist && cp src/index.js dist/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "cli",
+    "node",
+    "starter",
+    "tooling"
+  ],
+  "license": "MIT"
+}

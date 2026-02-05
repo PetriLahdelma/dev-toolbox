@@ -1,0 +1,12 @@
+{
+  "name": "github-action",
+  "description": "Composite GitHub Action profile with shell-based CI checks.",
+  "template": "github-action",
+  "release_type": "simple",
+  "setup_node": false,
+  "ci_commands": [
+    "bash -n scripts/main.sh",
+    "./scripts/main.sh --self-test"
+  ],
+  "required_scripts": []
+}

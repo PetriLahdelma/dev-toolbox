@@ -1,0 +1,15 @@
+{
+  "name": "node-cli",
+  "description": "TypeScript/Node CLI profile with release-please and full test gate.",
+  "template": "node-cli",
+  "release_type": "node",
+  "setup_node": true,
+  "ci_commands": [
+    "npm ci",
+    "npm run lint",
+    "npm run typecheck",
+    "npm test",
+    "npm run build"
+  ],
+  "required_scripts": ["lint", "typecheck", "test", "build"]
+}

@@ -1,0 +1,201 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOT'
+Usage: scripts/profile-apply <profile> [repo-path] [--owner @handle] [--force]
+
+Examples:
+  scripts/profile-apply node-cli
+  scripts/profile-apply next-app ../my-next --owner @PetriLahdelma --force
+
+Behavior:
+  - Applies baseline maintainer templates
+  - Generates CI workflow from profile commands
+  - Generates Release Please workflow with profile release type
+EOT
+}
+
+profile=""
+repo_path="."
+owner="@PetriLahdelma"
+force=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --owner)
+      owner="${2:-}"
+      if [[ -z "$owner" ]]; then
+        echo "--owner requires a value"
+        exit 1
+      fi
+      shift 2
+      ;;
+    --force)
+      force=1
+      shift
+      ;;
+    *)
+      if [[ -z "$profile" ]]; then
+        profile="$1"
+      elif [[ "$repo_path" == "." ]]; then
+        repo_path="$1"
+      else
+        echo "Unexpected argument: $1"
+        usage
+        exit 1
+      fi
+      shift
+      ;;
+  esac
+done
+
+if [[ -z "$profile" ]]; then
+  usage
+  exit 1
+fi
+
+root_dir="$(cd "$(dirname "$0")/.." && pwd)"
+profile_file="$root_dir/profiles/$profile/profile.json"
+baseline_dir="$root_dir/templates/baseline"
+
+if [[ ! -f "$profile_file" ]]; then
+  echo "Unknown profile: $profile"
+  exit 1
+fi
+
+mkdir -p "$repo_path"
+repo_abs="$(cd "$repo_path" && pwd)"
+repo_name="$(basename "$repo_abs")"
+
+escape_sed() {
+  printf '%s' "$1" | sed -e 's/[\/&]/\\&/g'
+}
+
+owner_esc="$(escape_sed "$owner")"
+repo_esc="$(escape_sed "$repo_name")"
+
+while IFS= read -r -d '' src; do
+  rel="${src#"$baseline_dir"/}"
+  dest="$repo_abs/$rel"
+
+  if [[ -e "$dest" && "$force" -ne 1 ]]; then
+    echo "skip existing: $rel"
+    continue
+  fi
+
+  mkdir -p "$(dirname "$dest")"
+  sed -e "s/__OWNER_HANDLE__/$owner_esc/g" -e "s/__REPO_NAME__/$repo_esc/g" "$src" > "$dest"
+  echo "write: $rel"
+done < <(find "$baseline_dir" -type f -print0)
+
+release_type="$(jq -r '.release_type' "$profile_file")"
+setup_node="$(jq -r '.setup_node' "$profile_file")"
+ci_commands="$(jq -r '.ci_commands[]' "$profile_file")"
+
+mkdir -p "$repo_abs/.github/workflows"
+
+ci_file="$repo_abs/.github/workflows/ci.yml"
+{
+  echo "name: CI"
+  echo
+  echo "on:"
+  echo "  push:"
+  echo "  pull_request:"
+  echo "  workflow_dispatch:"
+  echo
+  echo "jobs:"
+  echo "  ci:"
+  echo "    runs-on: ubuntu-latest"
+  echo "    steps:"
+  echo "      - uses: actions/checkout@v4"
+  if [[ "$setup_node" == "true" ]]; then
+    echo "      - uses: actions/setup-node@v4"
+    echo "        with:"
+    echo "          node-version: 20"
+    echo "          cache: npm"
+  fi
+  while IFS= read -r cmd; do
+    [[ -z "$cmd" ]] && continue
+    echo "      - run: $cmd"
+  done <<< "$ci_commands"
+} > "$ci_file"
+
+echo "write: .github/workflows/ci.yml"
+
+release_file="$repo_abs/.github/workflows/release.yml"
+{
+  echo "name: Release Please"
+  echo
+  echo "on:"
+  echo "  push:"
+  echo "    branches: [main]"
+  echo "  workflow_dispatch:"
+  echo
+  echo "permissions:"
+  echo "  contents: write"
+  echo "  pull-requests: write"
+  echo
+  echo "jobs:"
+  echo "  release:"
+  echo "    runs-on: ubuntu-latest"
+  echo "    steps:"
+  echo "      - uses: googleapis/release-please-action@v4"
+  echo "        with:"
+  echo '          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}'
+  echo "          release-type: $release_type"
+} > "$release_file"
+
+echo "write: .github/workflows/release.yml"
+
+# Keep Dependabot config aligned with profile type.
+if [[ "$setup_node" == "true" ]]; then
+  cat > "$repo_abs/.github/dependabot.yml" <<'EOF_DEP_NODE'
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:15"
+EOF_DEP_NODE
+else
+  cat > "$repo_abs/.github/dependabot.yml" <<'EOF_DEP_ACTIONS'
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+EOF_DEP_ACTIONS
+fi
+
+echo "write: .github/dependabot.yml"
+
+if [[ -f "$repo_abs/package.json" ]]; then
+  missing=0
+  while IFS= read -r script_name; do
+    [[ -z "$script_name" ]] && continue
+    if ! jq -e --arg s "$script_name" '.scripts[$s] != null' "$repo_abs/package.json" >/dev/null; then
+      echo "warn: profile expects script '$script_name' but package.json is missing it"
+      missing=1
+    fi
+  done < <(jq -r '.required_scripts[]?' "$profile_file")
+
+  if [[ "$missing" -eq 0 ]]; then
+    echo "profile script expectations satisfied"
+  fi
+fi

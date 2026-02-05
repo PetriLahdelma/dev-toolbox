@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOT'
+Usage: scripts/bench <command> [runs] [output-dir]
+
+Examples:
+  scripts/bench "npm run build"
+  scripts/bench "npm test" 15 .toolbox/bench
+
+Behavior:
+  - Uses hyperfine when available
+  - Falls back to built-in timer otherwise
+  - Writes benchmark artifacts to output-dir
+EOT
+}
+
+if [[ $# -lt 1 ]]; then
+  usage
+  exit 1
+fi
+
+cmd="$1"
+runs="${2:-10}"
+out_dir="${3:-.toolbox/bench}"
+
+if ! [[ "$runs" =~ ^[0-9]+$ ]] || [[ "$runs" -lt 1 ]]; then
+  echo "runs must be a positive integer"
+  exit 1
+fi
+
+mkdir -p "$out_dir"
+json_out="$out_dir/benchmark.json"
+md_out="$out_dir/benchmark.md"
+raw_out="$out_dir/raw-times-ms.txt"
+
+if command -v hyperfine >/dev/null 2>&1; then
+  hyperfine --warmup 1 --runs "$runs" "$cmd" --export-json "$json_out" --export-markdown "$md_out"
+  echo "Benchmark complete (hyperfine)."
+  echo "Artifacts: $json_out, $md_out"
+  exit 0
+fi
+
+: > "$raw_out"
+for i in $(seq 1 "$runs"); do
+  start_ns="$(date +%s%N)"
+  bash -lc "$cmd" >/dev/null
+  end_ns="$(date +%s%N)"
+  elapsed_ms="$(( (end_ns - start_ns) / 1000000 ))"
+  echo "$elapsed_ms" >> "$raw_out"
+  printf "run %s/%s: %sms\n" "$i" "$runs" "$elapsed_ms"
+done
+
+min_ms="$(sort -n "$raw_out" | head -n1)"
+max_ms="$(sort -n "$raw_out" | tail -n1)"
+avg_ms="$(awk '{sum+=$1} END { if (NR==0) print 0; else printf "%.2f", sum/NR }' "$raw_out")"
+
+cat > "$json_out" <<EOF_JSON
+{
+  "command": "$cmd",
+  "runs": $runs,
+  "engine": "builtin",
+  "summary_ms": {
+    "min": $min_ms,
+    "max": $max_ms,
+    "avg": $avg_ms
+  },
+  "raw_file": "$(basename "$raw_out")"
+}
+EOF_JSON
+
+cat > "$md_out" <<EOF_MD
+# Benchmark Report
+
+- command: \`$cmd\`
+- runs: $runs
+- engine: builtin timer
+
+## Summary (ms)
+
+| min | avg | max |
+| --- | --- | --- |
+| $min_ms | $avg_ms | $max_ms |
+
+## Raw Results
+
+See \`$(basename "$raw_out")\`.
+EOF_MD
+
+echo "Benchmark complete (builtin timer)."
+echo "Artifacts: $json_out, $md_out, $raw_out"
