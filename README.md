@@ -27,6 +27,7 @@ A practical toolkit for running repositories like real products.
 - `templates/baseline/`: CODEOWNERS, issue/PR templates, Dependabot, release workflows, and maintainer docs.
 - `templates/projects/`: starter code for each profile.
 - `templates/features/`: optional profile feature packs (e.g., motion, remotion, AI agent, Claude context).
+- Security defaults: dependency review on pull requests plus least-privilege CI/release workflow permissions.
 
 ## Quickstart
 

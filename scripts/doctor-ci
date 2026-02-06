@@ -66,6 +66,7 @@ required_files=(
   ".github/CODEOWNERS"
   ".github/PULL_REQUEST_TEMPLATE.md"
   ".github/dependabot.yml"
+  ".github/workflows/dependency-review.yml"
   ".github/workflows/release.yml"
   ".github/workflows/semantic-pr-title.yml"
   ".github/ISSUE_TEMPLATE/bug_report.yml"
@@ -117,6 +118,20 @@ if [[ -f ".github/workflows/release.yml" ]]; then
     passes+=("release token fallback configured")
   else
     warns+=("release workflow missing RELEASE_PLEASE_TOKEN fallback")
+  fi
+fi
+
+if [[ -f ".github/workflows/ci.yml" ]]; then
+  if contains_text "permissions:" .github/workflows/ci.yml; then
+    passes+=("ci workflow has explicit permissions")
+  else
+    warns+=("ci workflow missing explicit permissions")
+  fi
+
+  if contains_text "concurrency:" .github/workflows/ci.yml; then
+    passes+=("ci workflow has concurrency control")
+  else
+    warns+=("ci workflow missing concurrency control")
   fi
 fi
 

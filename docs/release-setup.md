@@ -10,6 +10,13 @@ Set this secret in each repo using release workflows:
 
 Use a PAT with permissions to open PRs and create releases/tags.
 
+## Required repository Actions permissions
+
+In repository settings:
+
+- `Actions` -> `General` -> `Workflow permissions`: set to **Read and write permissions**
+- Enable **Allow GitHub Actions to create and approve pull requests**
+
 ## Why not only `GITHUB_TOKEN`
 
 `GITHUB_TOKEN` is sometimes insufficient for triggering downstream workflows on generated tags/releases in stricter org settings.

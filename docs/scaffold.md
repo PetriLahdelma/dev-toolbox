@@ -26,6 +26,12 @@ Use scaffolding to bootstrap a new repository with profile defaults and maintain
 4. Installs npm dependencies (unless `--no-install`).
 5. Prints follow-up commands.
 
+Generated defaults include:
+
+- CI workflow with explicit permissions + concurrency controls.
+- Release Please workflow with explicit permissions + concurrency controls.
+- Dependency Review workflow for pull requests to `main`.
+
 ## Next app feature flags
 
 - `--motion`: Adds Framer Motion starter components and route.

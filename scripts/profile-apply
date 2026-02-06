@@ -105,18 +105,32 @@ ci_file="$repo_abs/.github/workflows/ci.yml"
   echo
   echo "on:"
   echo "  push:"
+  echo "    branches: [main]"
   echo "  pull_request:"
   echo "  workflow_dispatch:"
+  echo
+  echo "permissions:"
+  echo "  contents: read"
+  echo
+  echo "concurrency:"
+  echo "  group: ci-\${{ github.workflow }}-\${{ github.ref }}"
+  echo "  cancel-in-progress: true"
   echo
   echo "jobs:"
   echo "  ci:"
   echo "    runs-on: ubuntu-latest"
+  if [[ "$setup_node" == "true" ]]; then
+    echo "    strategy:"
+    echo "      fail-fast: false"
+    echo "      matrix:"
+    echo "        node-version: [20, 22]"
+  fi
   echo "    steps:"
   echo "      - uses: actions/checkout@v4"
   if [[ "$setup_node" == "true" ]]; then
     echo "      - uses: actions/setup-node@v4"
     echo "        with:"
-    echo "          node-version: 20"
+    echo "          node-version: \${{ matrix.node-version }}"
     echo "          cache: npm"
   fi
   while IFS= read -r cmd; do
@@ -140,6 +154,10 @@ release_file="$repo_abs/.github/workflows/release.yml"
   echo "  contents: write"
   echo "  pull-requests: write"
   echo
+  echo "concurrency:"
+  echo "  group: release-\${{ github.workflow }}-\${{ github.ref }}"
+  echo "  cancel-in-progress: false"
+  echo
   echo "jobs:"
   echo "  release:"
   echo "    runs-on: ubuntu-latest"
@@ -151,6 +169,28 @@ release_file="$repo_abs/.github/workflows/release.yml"
 } > "$release_file"
 
 echo "write: .github/workflows/release.yml"
+
+dependency_review_file="$repo_abs/.github/workflows/dependency-review.yml"
+cat > "$dependency_review_file" <<'EOF_DEP_REVIEW'
+name: Dependency Review
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+EOF_DEP_REVIEW
+
+echo "write: .github/workflows/dependency-review.yml"
 
 # Keep Dependabot config aligned with profile type.
 if [[ "$setup_node" == "true" ]]; then
