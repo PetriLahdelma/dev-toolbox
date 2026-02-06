@@ -44,7 +44,27 @@ Or choose specific Next.js extras:
 ./scripts/doctor-ci ./my-cli --strict
 ```
 
-## 5) Optional wrappers
+If you scaffolded a Next app, validate that repo path instead:
+
+```bash
+./scripts/doctor-ci ./my-next --strict
+```
+
+## 6) Configure env vars for feature packs (if used)
+
+Some extras inject placeholders into `.env.example`:
+
+- `--vercel-agents`: `OPENAI_API_KEY`
+- `--stripe`: `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_APP_URL`
+- `--supabase`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+
+Apply them locally:
+
+```bash
+cp my-next/.env.example my-next/.env.local
+```
+
+## 7) Optional wrappers
 
 If you use `just`:
 

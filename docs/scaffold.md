@@ -36,13 +36,21 @@ Generated defaults include:
 
 - `--motion`: Adds Framer Motion starter components and route.
 - `--remotion`: Adds Remotion composition starter and video scripts.
-- `--vercel-agents`: Adds Vercel AI SDK route + chat demo page.
+- `--vercel-agents` (alias: `--vercel-agent-brovers`): Adds Vercel AI SDK route + chat demo page.
 - `--storybook`: Adds Storybook with a11y/docs/links/themes/onboarding addons.
 - `--claude` or `--claude-code`: Adds `CLAUDE.md` starter guidance.
 - `--stripe`: Adds Stripe checkout starter route + billing page.
 - `--supabase`: Adds Supabase server/browser client starter helpers + route.
-- `--fumadocs`: Adds Fumadocs + Shiki docs starter route and content source.
+- `--fumadocs`: Adds Fumadocs + Shiki docs starter route and content source (`fumadocs-core`, `fumadocs-mdx`, `shiki`).
 - `--all-next-extras`: Enables all Next app feature flags at once.
+
+## Env vars added by extras
+
+When these extras are enabled, scaffold appends placeholders to `.env.example`:
+
+- Vercel agents: `OPENAI_API_KEY`
+- Stripe: `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_APP_URL`
+- Supabase: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
 
 ## Validation recommendation
 
