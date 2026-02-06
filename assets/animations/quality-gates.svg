@@ -1,34 +1,83 @@
-<svg width="1200" height="520" viewBox="0 0 1200 520" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Quality gates">
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace">
-    <text x="26" y="54" fill="#0f172a" font-size="40">Quality Gates (Live)</text>
+<svg width="1200" height="540" viewBox="0 0 1200 540" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Quality gates">
+  <style>
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      letter-spacing: 0.1px;
+    }
 
-    <g fill="#334155" font-size="22">
-      <text x="84" y="118">lint-shell --strict</text>
-      <text x="84" y="168">doctor-ci --strict</text>
-      <text x="84" y="218">self-test (scaffold matrix)</text>
-      <text x="84" y="268">dependency-review workflow</text>
-      <text x="84" y="318">release-please (permissions checked)</text>
-      <text x="84" y="368">node matrix (20, 22)</text>
-      <text x="84" y="418">artifact + benchmark reports</text>
-    </g>
+    .title {
+      fill: #e2e8f0;
+      font-size: 40px;
+      font-weight: 700;
+    }
 
-    <g fill="#16a34a" font-size="30">
-      <text x="30" y="118">●</text>
-      <text x="30" y="168">●</text>
-      <text x="30" y="218">●</text>
-      <text x="30" y="268">●</text>
-      <text x="30" y="318">●</text>
-      <text x="30" y="368">●</text>
-      <text x="30" y="418">●</text>
-    </g>
+    .label {
+      fill: #cbd5e1;
+      font-size: 24px;
+    }
 
-    <circle cx="1128" cy="56" r="9" fill="#16a34a">
-      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.4s" repeatCount="indefinite"/>
-    </circle>
-    <text x="1076" y="92" fill="#15803d" font-size="20">green</text>
-  </g>
+    .dot {
+      fill: #22c55e;
+      font-size: 30px;
+    }
 
-  <rect x="26" y="486" width="0" height="8" rx="4" fill="#22d3ee">
-    <animate attributeName="width" values="0;0;1148;1148" keyTimes="0;0.2;0.88;1" dur="6s" repeatCount="indefinite"/>
+    .status {
+      fill: #86efac;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .row {
+      fill: rgba(15, 23, 42, 0.72);
+      stroke: rgba(148, 163, 184, 0.28);
+      stroke-width: 1;
+    }
+
+    @media (prefers-color-scheme: light) {
+      .title { fill: #0f172a; }
+      .label { fill: #334155; }
+      .dot { fill: #16a34a; }
+      .status { fill: #15803d; }
+
+      .row {
+        fill: rgba(248, 250, 252, 0.92);
+        stroke: rgba(100, 116, 139, 0.24);
+      }
+    }
+  </style>
+
+  <text class="mono title" x="26" y="56">Quality Gates (Live)</text>
+
+  <rect class="row" x="24" y="90" width="900" height="44" rx="12"/>
+  <rect class="row" x="24" y="144" width="900" height="44" rx="12"/>
+  <rect class="row" x="24" y="198" width="900" height="44" rx="12"/>
+  <rect class="row" x="24" y="252" width="900" height="44" rx="12"/>
+  <rect class="row" x="24" y="306" width="900" height="44" rx="12"/>
+  <rect class="row" x="24" y="360" width="900" height="44" rx="12"/>
+  <rect class="row" x="24" y="414" width="900" height="44" rx="12"/>
+
+  <text class="mono dot" x="44" y="122">●</text>
+  <text class="mono dot" x="44" y="176">●</text>
+  <text class="mono dot" x="44" y="230">●</text>
+  <text class="mono dot" x="44" y="284">●</text>
+  <text class="mono dot" x="44" y="338">●</text>
+  <text class="mono dot" x="44" y="392">●</text>
+  <text class="mono dot" x="44" y="446">●</text>
+
+  <text class="mono label" x="92" y="121">lint-shell --strict</text>
+  <text class="mono label" x="92" y="175">doctor-ci --strict</text>
+  <text class="mono label" x="92" y="229">self-test (scaffold matrix)</text>
+  <text class="mono label" x="92" y="283">dependency-review workflow</text>
+  <text class="mono label" x="92" y="337">release-please (permissions checked)</text>
+  <text class="mono label" x="92" y="391">node matrix (20, 22)</text>
+  <text class="mono label" x="92" y="445">artifact + benchmark reports</text>
+
+  <circle cx="1128" cy="52" r="9" fill="#22c55e">
+    <animate attributeName="opacity" values="0.3;1;0.3" dur="1.4s" repeatCount="indefinite"/>
+  </circle>
+  <text class="mono status" x="1076" y="88">green</text>
+
+  <rect x="24" y="514" width="0" height="8" rx="4" fill="#22d3ee">
+    <animate attributeName="width" values="0;0;1152;1152" keyTimes="0;0.2;0.88;1" dur="6s" repeatCount="indefinite"/>
   </rect>
 </svg>
