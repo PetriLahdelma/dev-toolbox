@@ -42,6 +42,7 @@ tmpdir="$(mktemp -d)"
 [[ -f "$tmpdir/ci-next/components/motion/fade-up.tsx" ]]
 [[ -f "$tmpdir/ci-next/video/index.ts" ]]
 [[ -f "$tmpdir/ci-next/app/api/agent/route.ts" ]]
+[[ -f "$tmpdir/ci-next/.storybook/main.ts" ]]
 [[ -f "$tmpdir/ci-next/CLAUDE.md" ]]
 
 ./scripts/profile-apply node-cli "$tmpdir/ci-node-cli" --owner @PetriLahdelma --force

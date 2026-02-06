@@ -32,9 +32,9 @@
 
 ![Animated scaffold sequence](./assets/animations/scaffold-sequence.svg)
 
-### Animated quality gates
+### Quality gates
 
-![Animated quality gates](./assets/animations/quality-gates.svg)
+![Quality gates](./assets/animations/quality-gates.svg)
 
 ### Real scaffold output screenshots (`next-app --all-next-extras`)
 
@@ -72,7 +72,7 @@
 | Profile | Best for | Output highlights |
 | --- | --- | --- |
 | `node-cli` | npm libraries and CLIs | Strict CI gates, release workflow, maintainer docs |
-| `next-app` | Next.js products | Tailwind + shadcn-style UI + Radix + Vercel defaults |
+| `next-app` | Next.js products | Tailwind + shadcn-style UI + Radix + Vercel defaults + optional Storybook |
 | `github-action` | Composite actions | Action starter with shell-focused CI and baseline docs |
 
 `next-app` extras:
@@ -80,6 +80,7 @@
 - `--motion`
 - `--remotion`
 - `--vercel-agents` (alias: `--vercel-agent-brovers`)
+- `--storybook` (Storybook + a11y/docs/links/themes/onboarding addons)
 - `--claude` / `--claude-code`
 - `--all-next-extras`
 

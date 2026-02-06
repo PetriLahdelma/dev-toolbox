@@ -28,4 +28,5 @@ Profiles define reusable CI/release presets and expected script contracts.
 - Dependabot config is profile-aware (Node profiles include npm updates).
 - Existing files are preserved unless `--force` is used.
 - `next-app` includes Next.js App Router + Tailwind + shadcn-style UI + Radix + Vercel defaults.
+- `next-app` optional extras include motion, remotion, Vercel agents, Storybook, and Claude scaffolding.
 - Baseline includes dependency review workflow for pull requests.

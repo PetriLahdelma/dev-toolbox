@@ -32,4 +32,5 @@ When scaffolding from `dev-toolbox`, you can enable:
 - `--motion` for Framer Motion starter components/routes
 - `--remotion` for video composition scaffolding
 - `--vercel-agents` for Vercel AI SDK agent route + demo page
+- `--storybook` for Storybook with a11y/docs/links/themes/onboarding addons
 - `--claude` for a `CLAUDE.md` collaboration scaffold

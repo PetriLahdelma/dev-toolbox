@@ -1,50 +1,38 @@
-<svg width="1200" height="640" viewBox="0 0 1200 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Animated scaffold sequence">
+<svg width="1200" height="520" viewBox="0 0 1200 520" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Scaffold sequence">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="640" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#081225"/>
-      <stop offset="1" stop-color="#121212"/>
-    </linearGradient>
-    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+    <linearGradient id="progress" x1="0" y1="0" x2="1" y2="0">
       <stop stop-color="#38bdf8"/>
       <stop offset="1" stop-color="#22d3ee"/>
     </linearGradient>
   </defs>
 
-  <rect width="1200" height="640" rx="24" fill="url(#bg)"/>
-  <rect x="26" y="26" width="1148" height="588" rx="18" fill="#0b1020" stroke="#1f2a44"/>
-  <circle cx="54" cy="52" r="8" fill="#ef4444"/>
-  <circle cx="80" cy="52" r="8" fill="#f59e0b"/>
-  <circle cx="106" cy="52" r="8" fill="#10b981"/>
-  <text x="132" y="58" fill="#8fa7d6" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18">dev-toolbox demo</text>
-
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="24">
-    <text x="56" y="118" fill="#93c5fd">$ ./scripts/scaffold demo-next next-app . --all-next-extras --owner @PetriLahdelma</text>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="22">
+    <text x="28" y="44" fill="#0f172a">$ ./scripts/scaffold demo-next next-app . \</text>
+    <text x="58" y="78" fill="#0f172a">--all-next-extras --owner @PetriLahdelma --force</text>
 
     <g opacity="0">
-      <animate attributeName="opacity" values="0;1;1" keyTimes="0;0.2;1" dur="8s" repeatCount="indefinite"/>
-      <text x="56" y="172" fill="#86efac">write: demo-next/app/layout.tsx</text>
-      <text x="56" y="208" fill="#86efac">write: demo-next/components/ui/button.tsx</text>
-      <text x="56" y="244" fill="#86efac">feature enabled: motion, remotion, vercel-agents, claude</text>
+      <animate attributeName="opacity" values="0;1;1" keyTimes="0;0.16;1" dur="8s" repeatCount="indefinite"/>
+      <text x="28" y="136" fill="#166534">write: app/layout.tsx</text>
+      <text x="28" y="170" fill="#166534">write: components/ui/button.tsx</text>
+      <text x="28" y="204" fill="#166534">feature enabled: motion, remotion, vercel-agents, storybook, claude</text>
     </g>
 
     <g opacity="0">
-      <animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.25;0.45;1" dur="8s" repeatCount="indefinite"/>
-      <text x="56" y="304" fill="#67e8f9">$ ./scripts/doctor-ci ./demo-next --strict</text>
-      <text x="56" y="340" fill="#86efac">Doctor CI summary: 26 pass, 0 warn, 0 fail</text>
+      <animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.24;0.44;1" dur="8s" repeatCount="indefinite"/>
+      <text x="28" y="270" fill="#0f766e">$ ./scripts/doctor-ci ./demo-next --strict</text>
+      <text x="28" y="304" fill="#166534">Doctor CI summary: 27 pass, 0 warn, 0 fail</text>
     </g>
 
     <g opacity="0">
-      <animate attributeName="opacity" values="0;0;0;1;1" keyTimes="0;0.45;0.62;0.7;1" dur="8s" repeatCount="indefinite"/>
-      <text x="56" y="402" fill="#c4b5fd">$ ./scripts/smoke ./demo-next</text>
-      <text x="56" y="438" fill="#e2e8f0">-> npm run lint</text>
-      <text x="56" y="472" fill="#e2e8f0">-> npm run typecheck</text>
-      <text x="56" y="506" fill="#e2e8f0">-> npm run test</text>
-      <text x="56" y="540" fill="#e2e8f0">-> npm run build</text>
-      <text x="56" y="576" fill="#86efac">Smoke checks complete.</text>
+      <animate attributeName="opacity" values="0;0;0;1;1" keyTimes="0;0.44;0.6;0.72;1" dur="8s" repeatCount="indefinite"/>
+      <text x="28" y="372" fill="#1d4ed8">$ ./scripts/smoke ./demo-next</text>
+      <text x="28" y="406" fill="#334155">-> npm run lint</text>
+      <text x="28" y="438" fill="#334155">-> npm run typecheck</text>
+      <text x="28" y="470" fill="#334155">-> npm run test && npm run build</text>
     </g>
   </g>
 
-  <rect x="52" y="594" width="0" height="6" rx="3" fill="url(#line)">
-    <animate attributeName="width" values="0;0;1096;1096" keyTimes="0;0.18;0.88;1" dur="8s" repeatCount="indefinite"/>
+  <rect x="28" y="492" width="0" height="6" rx="3" fill="url(#progress)">
+    <animate attributeName="width" values="0;0;1144;1144" keyTimes="0;0.16;0.9;1" dur="8s" repeatCount="indefinite"/>
   </rect>
 </svg>

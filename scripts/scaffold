@@ -9,7 +9,7 @@ Examples:
   scripts/scaffold my-cli node-cli
   scripts/scaffold my-next next-app /tmp --owner @PetriLahdelma
   scripts/scaffold my-action github-action --no-install
-  scripts/scaffold my-next next-app . --motion --remotion --vercel-agents --claude
+  scripts/scaffold my-next next-app . --motion --remotion --vercel-agents --storybook --claude
 
 Behavior:
   - Creates project from profile template
@@ -22,6 +22,7 @@ Next app feature flags:
   --remotion                Add Remotion composition starter + scripts
   --vercel-agents           Add Vercel AI SDK agent route + demo page
   --vercel-agent-brovers    Alias for --vercel-agents
+  --storybook               Add Storybook with a11y/docs/links/themes/onboarding addons
   --claude, --claude-code   Add CLAUDE.md scaffolding
   --all-next-extras         Enable all Next app feature flags
 EOT
@@ -33,6 +34,7 @@ force=0
 next_motion=0
 next_remotion=0
 next_vercel_agents=0
+next_storybook=0
 next_claude=0
 
 positional=()
@@ -70,6 +72,10 @@ while [[ $# -gt 0 ]]; do
       next_vercel_agents=1
       shift
       ;;
+    --storybook)
+      next_storybook=1
+      shift
+      ;;
     --claude|--claude-code)
       next_claude=1
       shift
@@ -78,6 +84,7 @@ while [[ $# -gt 0 ]]; do
       next_motion=1
       next_remotion=1
       next_vercel_agents=1
+      next_storybook=1
       next_claude=1
       shift
       ;;
@@ -113,7 +120,7 @@ if [[ -e "$target" && "$force" -ne 1 ]]; then
 fi
 
 if [[ "$profile" != "next-app" ]]; then
-  if [[ "$next_motion" -eq 1 || "$next_remotion" -eq 1 || "$next_vercel_agents" -eq 1 || "$next_claude" -eq 1 ]]; then
+  if [[ "$next_motion" -eq 1 || "$next_remotion" -eq 1 || "$next_vercel_agents" -eq 1 || "$next_storybook" -eq 1 || "$next_claude" -eq 1 ]]; then
     echo "Next app feature flags are only supported with profile 'next-app'."
     exit 1
   fi
@@ -189,7 +196,7 @@ apply_feature_template() {
 copy_template_tree "$project_template"
 
 if [[ "$profile" == "next-app" ]]; then
-  if [[ "$next_motion" -eq 1 || "$next_remotion" -eq 1 || "$next_vercel_agents" -eq 1 ]]; then
+  if [[ "$next_motion" -eq 1 || "$next_remotion" -eq 1 || "$next_vercel_agents" -eq 1 || "$next_storybook" -eq 1 ]]; then
     require_jq
   fi
 
@@ -215,6 +222,20 @@ if [[ "$profile" == "next-app" ]]; then
     json_add_dep "dependencies" "@ai-sdk/openai" "^3.0.25"
     json_add_dep "dependencies" "@ai-sdk/react" "^3.0.74"
     echo "feature enabled: vercel-agents"
+  fi
+
+  if [[ "$next_storybook" -eq 1 ]]; then
+    apply_feature_template "storybook"
+    json_add_dep "devDependencies" "storybook" "^10.2.7"
+    json_add_dep "devDependencies" "@storybook/nextjs" "^10.2.7"
+    json_add_dep "devDependencies" "@storybook/addon-a11y" "^10.2.7"
+    json_add_dep "devDependencies" "@storybook/addon-docs" "^10.2.7"
+    json_add_dep "devDependencies" "@storybook/addon-links" "^10.2.7"
+    json_add_dep "devDependencies" "@storybook/addon-themes" "^10.2.7"
+    json_add_dep "devDependencies" "@storybook/addon-onboarding" "^10.2.7"
+    json_add_script "storybook" "storybook dev -p 6006"
+    json_add_script "storybook:build" "storybook build"
+    echo "feature enabled: storybook"
   fi
 
   if [[ "$next_claude" -eq 1 ]]; then

@@ -32,6 +32,12 @@ Or scaffold the full Next.js stack:
 ./scripts/scaffold my-next next-app . --owner @PetriLahdelma --all-next-extras
 ```
 
+Or choose specific Next.js extras:
+
+```bash
+./scripts/scaffold my-next next-app . --owner @PetriLahdelma --motion --remotion --vercel-agents --storybook --claude
+```
+
 ## 5) Validate scaffold output
 
 ```bash
