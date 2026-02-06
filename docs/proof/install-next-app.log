@@ -1,0 +1,10 @@
+$ npm --prefix /tmp/demo-next install
+
+added 800 packages, and audited 802 packages in 2m
+
+10 low severity vulnerabilities
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.

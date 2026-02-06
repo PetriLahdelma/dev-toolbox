@@ -1,0 +1,28 @@
+$ ./scripts/doctor-ci /tmp/demo-next --strict
+Doctor CI summary: 26 pass, 0 warn, 0 fail
+[ok] .github/CODEOWNERS
+[ok] .github/PULL_REQUEST_TEMPLATE.md
+[ok] .github/dependabot.yml
+[ok] .github/workflows/dependency-review.yml
+[ok] .github/workflows/release.yml
+[ok] .github/workflows/semantic-pr-title.yml
+[ok] .github/ISSUE_TEMPLATE/bug_report.yml
+[ok] .github/ISSUE_TEMPLATE/feature_request.yml
+[ok] CONTRIBUTING.md
+[ok] SECURITY.md
+[ok] CHANGELOG.md
+[ok] LICENSE
+[ok] CODE_OF_CONDUCT.md
+[ok] mise.toml
+[ok] ci workflow
+[ok] style file: .editorconfig
+[ok] style file: .gitattributes
+[ok] project hygiene file: .gitignore
+[ok] release workflow uses release-please
+[ok] release token fallback configured
+[ok] ci workflow has explicit permissions
+[ok] ci workflow has concurrency control
+[ok] package script: lint
+[ok] package script: test
+[ok] package script: build
+[ok] package script: typecheck

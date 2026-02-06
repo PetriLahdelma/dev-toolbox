@@ -28,13 +28,95 @@
 
 ## Proof & demos
 
-### Animated scaffold run
+### Real scaffold terminal transcript (`next-app --all-next-extras`)
 
-![Animated scaffold sequence](./assets/animations/scaffold-sequence.svg)
+```bash
+$ ./scripts/scaffold demo-next next-app /tmp --all-next-extras --owner @PetriLahdelma --no-install --force
+write: /tmp/demo-next/app/layout.tsx
+write: /tmp/demo-next/app/page.tsx
+write: /tmp/demo-next/app/globals.css
+write: /tmp/demo-next/postcss.config.mjs
+write: /tmp/demo-next/tests/smoke.test.js
+write: /tmp/demo-next/next-env.d.ts
+write: /tmp/demo-next/README.md
+write: /tmp/demo-next/tailwind.config.ts
+write: /tmp/demo-next/components/ui/button.tsx
+write: /tmp/demo-next/package.json
+write: /tmp/demo-next/lib/utils.ts
+write: /tmp/demo-next/components.json
+write: /tmp/demo-next/tsconfig.json
+write: /tmp/demo-next/next.config.ts
+write: /tmp/demo-next/app/motion/page.tsx
+write: /tmp/demo-next/components/motion/fade-up.tsx
+feature enabled: motion
+write: /tmp/demo-next/video/IntroComposition.tsx
+write: /tmp/demo-next/video/README.md
+write: /tmp/demo-next/video/Root.tsx
+write: /tmp/demo-next/video/index.ts
+feature enabled: remotion
+write: /tmp/demo-next/app/agent/page.tsx
+write: /tmp/demo-next/app/api/agent/route.ts
+write: /tmp/demo-next/.env.example
+feature enabled: vercel-agents
+write: /tmp/demo-next/.storybook/main.ts
+write: /tmp/demo-next/.storybook/preview.ts
+write: /tmp/demo-next/components/ui/button.stories.tsx
+feature enabled: storybook
+write: /tmp/demo-next/CLAUDE.md
+feature enabled: claude
+profile script expectations satisfied
+Scaffold complete: /tmp/demo-next
+```
 
-### Quality gates
+### Real install + quality gates transcript
 
-![Quality gates](./assets/animations/quality-gates.svg)
+```bash
+$ npm --prefix /tmp/demo-next install
+added 800 packages, and audited 802 packages in 2m
+
+$ ./scripts/doctor-ci /tmp/demo-next --strict
+Doctor CI summary: 26 pass, 0 warn, 0 fail
+[ok] .github/CODEOWNERS
+[ok] .github/PULL_REQUEST_TEMPLATE.md
+[ok] .github/dependabot.yml
+[ok] .github/workflows/dependency-review.yml
+[ok] .github/workflows/release.yml
+[ok] .github/workflows/semantic-pr-title.yml
+[ok] .github/ISSUE_TEMPLATE/bug_report.yml
+[ok] .github/ISSUE_TEMPLATE/feature_request.yml
+[ok] CONTRIBUTING.md
+[ok] SECURITY.md
+[ok] CHANGELOG.md
+[ok] LICENSE
+[ok] CODE_OF_CONDUCT.md
+[ok] mise.toml
+[ok] ci workflow
+[ok] style file: .editorconfig
+[ok] style file: .gitattributes
+[ok] project hygiene file: .gitignore
+[ok] release workflow uses release-please
+[ok] release token fallback configured
+[ok] ci workflow has explicit permissions
+[ok] ci workflow has concurrency control
+[ok] package script: lint
+[ok] package script: test
+[ok] package script: build
+[ok] package script: typecheck
+
+$ ./scripts/smoke /tmp/demo-next
+-> npm run lint
+-> npm run typecheck
+-> npm run test
+-> npm run build
+Smoke checks complete.
+```
+
+Full raw logs from this run:
+
+- `docs/proof/scaffold-next-app.log`
+- `docs/proof/install-next-app.log`
+- `docs/proof/doctor-ci-next-app.log`
+- `docs/proof/smoke-next-app.log`
 
 ### Scaffold output screenshots (`next-app --all-next-extras`)
 
@@ -122,6 +204,7 @@ Every scaffolded project gets a baseline from `templates/baseline/`:
 - `docs/profiles.md`
 - `docs/scaffold.md`
 - `docs/release-setup.md`
+- `docs/proof/README.md`
 
 ## Local rituals
 

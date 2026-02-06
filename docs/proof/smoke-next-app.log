@@ -1,0 +1,61 @@
+$ ./scripts/smoke /tmp/demo-next
+-> npm run lint
+
+> demo-next@0.1.0 lint
+> tsc --noEmit
+
+-> npm run typecheck
+
+> demo-next@0.1.0 typecheck
+> tsc --noEmit
+
+-> npm run test
+
+> demo-next@0.1.0 test
+> node --test tests/smoke.test.js
+
+TAP version 13
+# Subtest: smoke
+ok 1 - smoke
+  ---
+  duration_ms: 1.165
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 74.458084
+-> npm run build
+
+> demo-next@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 10.6s
+  Running TypeScript ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/5) ...
+  Generating static pages using 15 workers (1/5) 
+  Generating static pages using 15 workers (2/5) 
+  Generating static pages using 15 workers (3/5) 
+✓ Generating static pages using 15 workers (5/5) in 535.4ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /agent
+├ ƒ /api/agent
+└ ○ /motion
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+Smoke checks complete.

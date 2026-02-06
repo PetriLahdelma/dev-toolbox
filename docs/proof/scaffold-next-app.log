@@ -1,0 +1,58 @@
+$ ./scripts/scaffold demo-next next-app /tmp --all-next-extras --owner @PetriLahdelma --no-install --force
+write: /tmp/demo-next/app/layout.tsx
+write: /tmp/demo-next/app/page.tsx
+write: /tmp/demo-next/app/globals.css
+write: /tmp/demo-next/postcss.config.mjs
+write: /tmp/demo-next/tests/smoke.test.js
+write: /tmp/demo-next/next-env.d.ts
+write: /tmp/demo-next/README.md
+write: /tmp/demo-next/tailwind.config.ts
+write: /tmp/demo-next/components/ui/button.tsx
+write: /tmp/demo-next/package.json
+write: /tmp/demo-next/lib/utils.ts
+write: /tmp/demo-next/components.json
+write: /tmp/demo-next/tsconfig.json
+write: /tmp/demo-next/next.config.ts
+write: /tmp/demo-next/app/motion/page.tsx
+write: /tmp/demo-next/components/motion/fade-up.tsx
+feature enabled: motion
+write: /tmp/demo-next/video/IntroComposition.tsx
+write: /tmp/demo-next/video/README.md
+write: /tmp/demo-next/video/Root.tsx
+write: /tmp/demo-next/video/index.ts
+feature enabled: remotion
+write: /tmp/demo-next/app/agent/page.tsx
+write: /tmp/demo-next/app/api/agent/route.ts
+write: /tmp/demo-next/.env.example
+feature enabled: vercel-agents
+write: /tmp/demo-next/.storybook/main.ts
+write: /tmp/demo-next/.storybook/preview.ts
+write: /tmp/demo-next/components/ui/button.stories.tsx
+feature enabled: storybook
+write: /tmp/demo-next/CLAUDE.md
+feature enabled: claude
+write: CODE_OF_CONDUCT.md
+write: LICENSE
+write: CHANGELOG.md
+write: .editorconfig
+write: mise.toml
+write: .gitignore
+write: CONTRIBUTING.md
+write: .github/CODEOWNERS
+write: .github/workflows/semantic-pr-title.yml
+write: .github/PULL_REQUEST_TEMPLATE.md
+write: .github/ISSUE_TEMPLATE/feature_request.yml
+write: .github/ISSUE_TEMPLATE/bug_report.yml
+write: .github/ISSUE_TEMPLATE/config.yml
+write: .github/dependabot.yml
+write: .gitattributes
+write: SECURITY.md
+write: .github/workflows/ci.yml
+write: .github/workflows/release.yml
+write: .github/workflows/dependency-review.yml
+write: .github/dependabot.yml
+profile script expectations satisfied
+Scaffold complete: /tmp/demo-next
+Next:
+  cd /tmp/demo-next
+  git add . && git commit -m "chore: scaffold next-app project"
