@@ -28,7 +28,7 @@
 
 ## Proof & demos
 
-### Real scaffold terminal transcript (`next-app --all-next-extras`)
+### Scaffold terminal transcript (`next-app --all-next-extras`)
 
 ```bash
 $ ./scripts/scaffold demo-next next-app /tmp --all-next-extras --owner @PetriLahdelma --no-install --force
@@ -64,15 +64,26 @@ write: /tmp/demo-next/components/ui/button.stories.tsx
 feature enabled: storybook
 write: /tmp/demo-next/CLAUDE.md
 feature enabled: claude
+write: /tmp/demo-next/app/api/stripe/checkout/route.ts
+write: /tmp/demo-next/app/billing/page.tsx
+feature enabled: stripe
+write: /tmp/demo-next/app/supabase/page.tsx
+write: /tmp/demo-next/app/api/supabase/health/route.ts
+write: /tmp/demo-next/lib/supabase/client.ts
+write: /tmp/demo-next/lib/supabase/server.ts
+feature enabled: supabase
+write: /tmp/demo-next/app/docs/page.tsx
+write: /tmp/demo-next/content/docs/getting-started.mdx
+feature enabled: fumadocs
 profile script expectations satisfied
 Scaffold complete: /tmp/demo-next
 ```
 
-### Real install + quality gates transcript
+### Install + quality gates transcript
 
 ```bash
 $ npm --prefix /tmp/demo-next install
-added 800 packages, and audited 802 packages in 2m
+added 979 packages, and audited 981 packages in 2m
 
 $ ./scripts/doctor-ci /tmp/demo-next --strict
 Doctor CI summary: 26 pass, 0 warn, 0 fail
@@ -164,6 +175,9 @@ Full raw logs from this run:
 - `--vercel-agents` (alias: `--vercel-agent-brovers`)
 - `--storybook` (Storybook + a11y/docs/links/themes/onboarding addons)
 - `--claude` / `--claude-code`
+- `--stripe`
+- `--supabase`
+- `--fumadocs` (Fumadocs + Shiki docs starter)
 - `--all-next-extras`
 
 ## Project standards included

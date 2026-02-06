@@ -35,7 +35,7 @@ Or scaffold the full Next.js stack:
 Or choose specific Next.js extras:
 
 ```bash
-./scripts/scaffold my-next next-app . --owner @PetriLahdelma --motion --remotion --vercel-agents --storybook --claude
+./scripts/scaffold my-next next-app . --owner @PetriLahdelma --motion --remotion --vercel-agents --storybook --claude --stripe --supabase --fumadocs
 ```
 
 ## 5) Validate scaffold output

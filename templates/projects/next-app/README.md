@@ -34,3 +34,6 @@ When scaffolding from `dev-toolbox`, you can enable:
 - `--vercel-agents` for Vercel AI SDK agent route + demo page
 - `--storybook` for Storybook with a11y/docs/links/themes/onboarding addons
 - `--claude` for a `CLAUDE.md` collaboration scaffold
+- `--stripe` for Stripe checkout billing starter
+- `--supabase` for Supabase client/server starter helpers
+- `--fumadocs` for Fumadocs docs source + Shiki-highlighted preview route

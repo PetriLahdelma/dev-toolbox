@@ -18,7 +18,7 @@ TAP version 13
 # Subtest: smoke
 ok 1 - smoke
   ---
-  duration_ms: 1.165
+  duration_ms: 1.019417
   ...
 1..1
 # tests 1
@@ -28,7 +28,7 @@ ok 1 - smoke
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 74.458084
+# duration_ms 62.254958
 -> npm run build
 
 > demo-next@0.1.0 build
@@ -37,14 +37,14 @@ ok 1 - smoke
 ▲ Next.js 16.1.6 (Turbopack)
 
   Creating an optimized production build ...
-✓ Compiled successfully in 10.6s
+✓ Compiled successfully in 7.9s
   Running TypeScript ...
   Collecting page data using 15 workers ...
-  Generating static pages using 15 workers (0/5) ...
-  Generating static pages using 15 workers (1/5) 
-  Generating static pages using 15 workers (2/5) 
-  Generating static pages using 15 workers (3/5) 
-✓ Generating static pages using 15 workers (5/5) in 535.4ms
+  Generating static pages using 15 workers (0/10) ...
+  Generating static pages using 15 workers (2/10) 
+  Generating static pages using 15 workers (4/10) 
+  Generating static pages using 15 workers (7/10) 
+✓ Generating static pages using 15 workers (10/10) in 762.2ms
   Finalizing page optimization ...
 
 Route (app)
@@ -52,7 +52,12 @@ Route (app)
 ├ ○ /_not-found
 ├ ○ /agent
 ├ ƒ /api/agent
-└ ○ /motion
+├ ƒ /api/stripe/checkout
+├ ƒ /api/supabase/health
+├ ○ /billing
+├ ○ /docs
+├ ○ /motion
+└ ○ /supabase
 
 
 ○  (Static)   prerendered as static content

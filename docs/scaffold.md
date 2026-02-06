@@ -12,7 +12,7 @@ Use scaffolding to bootstrap a new repository with profile defaults and maintain
 ./scripts/scaffold my-next next-app /tmp --no-install --owner @PetriLahdelma
 
 # Next.js app with feature packs
-./scripts/scaffold my-next-pro next-app . --owner @PetriLahdelma --motion --remotion --vercel-agents --storybook --claude
+./scripts/scaffold my-next-pro next-app . --owner @PetriLahdelma --motion --remotion --vercel-agents --storybook --claude --stripe --supabase --fumadocs
 
 # Composite GitHub Action project
 ./scripts/scaffold my-action github-action . --owner @PetriLahdelma
@@ -39,6 +39,9 @@ Generated defaults include:
 - `--vercel-agents`: Adds Vercel AI SDK route + chat demo page.
 - `--storybook`: Adds Storybook with a11y/docs/links/themes/onboarding addons.
 - `--claude` or `--claude-code`: Adds `CLAUDE.md` starter guidance.
+- `--stripe`: Adds Stripe checkout starter route + billing page.
+- `--supabase`: Adds Supabase server/browser client starter helpers + route.
+- `--fumadocs`: Adds Fumadocs + Shiki docs starter route and content source.
 - `--all-next-extras`: Enables all Next app feature flags at once.
 
 ## Validation recommendation

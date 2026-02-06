@@ -31,6 +31,17 @@ write: /tmp/demo-next/components/ui/button.stories.tsx
 feature enabled: storybook
 write: /tmp/demo-next/CLAUDE.md
 feature enabled: claude
+write: /tmp/demo-next/app/api/stripe/checkout/route.ts
+write: /tmp/demo-next/app/billing/page.tsx
+feature enabled: stripe
+write: /tmp/demo-next/app/supabase/page.tsx
+write: /tmp/demo-next/app/api/supabase/health/route.ts
+write: /tmp/demo-next/lib/supabase/client.ts
+write: /tmp/demo-next/lib/supabase/server.ts
+feature enabled: supabase
+write: /tmp/demo-next/app/docs/page.tsx
+write: /tmp/demo-next/content/docs/getting-started.mdx
+feature enabled: fumadocs
 write: CODE_OF_CONDUCT.md
 write: LICENSE
 write: CHANGELOG.md

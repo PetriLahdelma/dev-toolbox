@@ -44,6 +44,22 @@ tmpdir="$(mktemp -d)"
 [[ -f "$tmpdir/ci-next/app/api/agent/route.ts" ]]
 [[ -f "$tmpdir/ci-next/.storybook/main.ts" ]]
 [[ -f "$tmpdir/ci-next/CLAUDE.md" ]]
+[[ -f "$tmpdir/ci-next/app/billing/page.tsx" ]]
+[[ -f "$tmpdir/ci-next/app/api/stripe/checkout/route.ts" ]]
+[[ -f "$tmpdir/ci-next/app/supabase/page.tsx" ]]
+[[ -f "$tmpdir/ci-next/lib/supabase/server.ts" ]]
+[[ -f "$tmpdir/ci-next/app/docs/page.tsx" ]]
+[[ -f "$tmpdir/ci-next/content/docs/getting-started.mdx" ]]
+
+if command -v rg >/dev/null 2>&1; then
+  rg -q "^OPENAI_API_KEY=" "$tmpdir/ci-next/.env.example"
+  rg -q "^STRIPE_SECRET_KEY=" "$tmpdir/ci-next/.env.example"
+  rg -q "^NEXT_PUBLIC_SUPABASE_URL=" "$tmpdir/ci-next/.env.example"
+else
+  grep -q "^OPENAI_API_KEY=" "$tmpdir/ci-next/.env.example"
+  grep -q "^STRIPE_SECRET_KEY=" "$tmpdir/ci-next/.env.example"
+  grep -q "^NEXT_PUBLIC_SUPABASE_URL=" "$tmpdir/ci-next/.env.example"
+fi
 
 ./scripts/profile-apply node-cli "$tmpdir/ci-node-cli" --owner @PetriLahdelma --force
 ./scripts/profile-apply next-app "$tmpdir/ci-next" --owner @PetriLahdelma --force

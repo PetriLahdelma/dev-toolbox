@@ -9,7 +9,7 @@ Examples:
   scripts/scaffold my-cli node-cli
   scripts/scaffold my-next next-app /tmp --owner @PetriLahdelma
   scripts/scaffold my-action github-action --no-install
-  scripts/scaffold my-next next-app . --motion --remotion --vercel-agents --storybook --claude
+  scripts/scaffold my-next next-app . --motion --remotion --vercel-agents --storybook --claude --stripe --supabase --fumadocs
 
 Behavior:
   - Creates project from profile template
@@ -24,6 +24,9 @@ Next app feature flags:
   --vercel-agent-brovers    Alias for --vercel-agents
   --storybook               Add Storybook with a11y/docs/links/themes/onboarding addons
   --claude, --claude-code   Add CLAUDE.md scaffolding
+  --stripe                  Add Stripe checkout starter route + billing page
+  --supabase                Add Supabase server/browser client starters
+  --fumadocs                Add Fumadocs + Shiki docs starter route/content
   --all-next-extras         Enable all Next app feature flags
 EOT
 }
@@ -36,6 +39,9 @@ next_remotion=0
 next_vercel_agents=0
 next_storybook=0
 next_claude=0
+next_stripe=0
+next_supabase=0
+next_fumadocs=0
 
 positional=()
 while [[ $# -gt 0 ]]; do
@@ -80,12 +86,27 @@ while [[ $# -gt 0 ]]; do
       next_claude=1
       shift
       ;;
+    --stripe)
+      next_stripe=1
+      shift
+      ;;
+    --supabase)
+      next_supabase=1
+      shift
+      ;;
+    --fumadocs)
+      next_fumadocs=1
+      shift
+      ;;
     --all-next-extras)
       next_motion=1
       next_remotion=1
       next_vercel_agents=1
       next_storybook=1
       next_claude=1
+      next_stripe=1
+      next_supabase=1
+      next_fumadocs=1
       shift
       ;;
     *)
@@ -120,7 +141,7 @@ if [[ -e "$target" && "$force" -ne 1 ]]; then
 fi
 
 if [[ "$profile" != "next-app" ]]; then
-  if [[ "$next_motion" -eq 1 || "$next_remotion" -eq 1 || "$next_vercel_agents" -eq 1 || "$next_storybook" -eq 1 || "$next_claude" -eq 1 ]]; then
+  if [[ "$next_motion" -eq 1 || "$next_remotion" -eq 1 || "$next_vercel_agents" -eq 1 || "$next_storybook" -eq 1 || "$next_claude" -eq 1 || "$next_stripe" -eq 1 || "$next_supabase" -eq 1 || "$next_fumadocs" -eq 1 ]]; then
     echo "Next app feature flags are only supported with profile 'next-app'."
     exit 1
   fi
@@ -183,6 +204,25 @@ json_add_script() {
     '.scripts = (.scripts // {}) | .scripts[$script_name] = $script_cmd'
 }
 
+ensure_env_var() {
+  local key="$1"
+  local value="$2"
+  local env_file="$target/.env.example"
+  touch "$env_file"
+
+  if command -v rg >/dev/null 2>&1; then
+    if rg -q "^${key}=" "$env_file"; then
+      return
+    fi
+  else
+    if grep -q "^${key}=" "$env_file"; then
+      return
+    fi
+  fi
+
+  printf "%s=%s\n" "$key" "$value" >> "$env_file"
+}
+
 apply_feature_template() {
   local feature_name="$1"
   local feature_dir="$root_dir/templates/features/next-app/$feature_name"
@@ -196,7 +236,7 @@ apply_feature_template() {
 copy_template_tree "$project_template"
 
 if [[ "$profile" == "next-app" ]]; then
-  if [[ "$next_motion" -eq 1 || "$next_remotion" -eq 1 || "$next_vercel_agents" -eq 1 || "$next_storybook" -eq 1 ]]; then
+  if [[ "$next_motion" -eq 1 || "$next_remotion" -eq 1 || "$next_vercel_agents" -eq 1 || "$next_storybook" -eq 1 || "$next_stripe" -eq 1 || "$next_supabase" -eq 1 || "$next_fumadocs" -eq 1 ]]; then
     require_jq
   fi
 
@@ -221,6 +261,7 @@ if [[ "$profile" == "next-app" ]]; then
     json_add_dep "dependencies" "ai" "^6.0.72"
     json_add_dep "dependencies" "@ai-sdk/openai" "^3.0.25"
     json_add_dep "dependencies" "@ai-sdk/react" "^3.0.74"
+    ensure_env_var "OPENAI_API_KEY" "sk-..."
     echo "feature enabled: vercel-agents"
   fi
 
@@ -241,6 +282,35 @@ if [[ "$profile" == "next-app" ]]; then
   if [[ "$next_claude" -eq 1 ]]; then
     apply_feature_template "claude"
     echo "feature enabled: claude"
+  fi
+
+  if [[ "$next_stripe" -eq 1 ]]; then
+    apply_feature_template "stripe"
+    json_add_dep "dependencies" "stripe" "^20.3.1"
+    json_add_dep "dependencies" "@stripe/stripe-js" "^8.7.0"
+    json_add_dep "dependencies" "@stripe/react-stripe-js" "^5.6.0"
+    ensure_env_var "STRIPE_SECRET_KEY" "sk_test_..."
+    ensure_env_var "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY" "pk_test_..."
+    ensure_env_var "NEXT_PUBLIC_APP_URL" "http://localhost:3000"
+    echo "feature enabled: stripe"
+  fi
+
+  if [[ "$next_supabase" -eq 1 ]]; then
+    apply_feature_template "supabase"
+    json_add_dep "dependencies" "@supabase/supabase-js" "^2.95.2"
+    json_add_dep "dependencies" "@supabase/ssr" "^0.8.0"
+    ensure_env_var "NEXT_PUBLIC_SUPABASE_URL" "https://your-project-ref.supabase.co"
+    ensure_env_var "NEXT_PUBLIC_SUPABASE_ANON_KEY" "eyJ..."
+    ensure_env_var "SUPABASE_SERVICE_ROLE_KEY" "eyJ..."
+    echo "feature enabled: supabase"
+  fi
+
+  if [[ "$next_fumadocs" -eq 1 ]]; then
+    apply_feature_template "fumadocs"
+    json_add_dep "dependencies" "fumadocs-core" "^16.5.0"
+    json_add_dep "dependencies" "fumadocs-mdx" "^14.2.6"
+    json_add_dep "dependencies" "shiki" "^3.22.0"
+    echo "feature enabled: fumadocs"
   fi
 fi
 
