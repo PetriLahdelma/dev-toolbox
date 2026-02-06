@@ -36,7 +36,7 @@
 
 ![Quality gates](./assets/animations/quality-gates.svg)
 
-### Real scaffold output screenshots (`next-app --all-next-extras`)
+### Scaffold output screenshots (`next-app --all-next-extras`)
 
 <p>
   <img src="./assets/screenshots/demo-next-home.png" alt="Scaffolded Next app home" width="32%" />
